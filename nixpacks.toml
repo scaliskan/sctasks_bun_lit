@@ -1,11 +1,8 @@
 [phases.setup]
-nixPkgs = ["...", "bun", "nodejs_22"]
+nixPkgs = ["bun"]
 
 [phases.install]
-cmds = ["bun install"]
-
-[phases.build]
-cmds = ["echo 'No build step required'"]
+cmds = ["bun install --frozen-lockfile"]
 
 [start]
 cmd = "bun run src/server.js"
