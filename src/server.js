@@ -9,7 +9,8 @@ import {
   addBlueprint, 
   updateTaskLogs, 
   updateBlueprint, 
-  deleteBlueprint 
+  deleteBlueprint,
+  importBlueprints
 } from "./db.js";
 
 const app = new Elysia()
@@ -48,6 +49,40 @@ const app = new Elysia()
         }
         addBlueprint(title, start_date, rrule_string);
         return { success: true };
+      })
+      .post("/blueprints/import", async ({ body, set }) => {
+        const { file } = body;
+        if (!file) {
+          set.status = 400;
+          return { error: "No file uploaded" };
+        }
+
+        const text = await file.text();
+        const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
+        
+        // Skip header
+        const dataRows = lines.slice(1);
+        const blueprints = dataRows.map(line => {
+          // Simple CSV parse: title, start_date, rrule_string
+          // Handles cases where there might be commas in RRule or Title if we're careful.
+          // For now, assume title, date, and then the rest is rrule.
+          const parts = line.split(",").map(p => p.trim());
+          if (parts.length < 3) return null;
+          
+          return {
+            title: parts[0],
+            start_date: parts[1],
+            rrule_string: parts.slice(2).join(",") // Join back in case RRule had commas
+          };
+        }).filter(b => b !== null);
+
+        if (blueprints.length === 0) {
+          set.status = 400;
+          return { error: "No valid data found" };
+        }
+
+        importBlueprints(blueprints);
+        return { success: true, count: blueprints.length };
       })
       .post("/blueprints/update", ({ body, set }) => {
         const { id, title, rrule_string, start_date } = body;

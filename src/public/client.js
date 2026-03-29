@@ -95,6 +95,29 @@ const api = {
     const ok = await this.post("/api/logs", { blueprint_id, scheduled_date, logs });
     if (ok) showToast("Log saved");
     return ok;
+  },
+  async uploadCSV(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const res = await fetch("/api/blueprints/import", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`Imported ${data.count} blueprints`);
+        await window.refreshTimeline();
+        return true;
+      } else {
+        showToast(data.error || "Import failed", "error");
+        return false;
+      }
+    } catch (err) {
+      console.error("Upload Error:", err);
+      showToast("Network error during upload", "error");
+      return false;
+    }
   }
 };
 
@@ -276,6 +299,18 @@ document.getElementById("btn-add")?.addEventListener("click", () => {
     if (!title || !start_date) return alert("Title and Start Date are required");
     if (await api.upsert({ title, start_date, rrule_string })) window.closeModal();
   }));
+});
+
+document.getElementById("btn-import")?.addEventListener("click", () => {
+  document.getElementById("csv-upload")?.click();
+});
+
+document.getElementById("csv-upload")?.addEventListener("change", async (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  await api.uploadCSV(file);
+  // Clear input for same-file re-uploads
+  e.target.value = "";
 });
 
 document.getElementById("btn-today")?.addEventListener("click", () => {

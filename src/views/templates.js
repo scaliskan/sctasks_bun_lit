@@ -204,7 +204,7 @@ export const taskFormTemplate = (task, onSave) => {
           type="text"
           id="task-rrule"
           class="w-full px-4 py-2 rounded-lg border border-gray-300"
-          .value="${task.rrule_string || "FREQ=DAILY;COUNT=1"}"
+          .value="${task.rrule_string || "FREQ=DAILY;COUNT  =1"}"
           placeholder="FREQ=DAILY;COUNT=1"
         />
       </div>
@@ -321,9 +321,13 @@ export const renderLayout = (timelineHtml, data) => `
         <button id="btn-today" class="w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg hover:shadow-xl hover:bg-blue-700 flex items-center justify-center transition-all active:scale-95" title="Today">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
         </button>
+        <button id="btn-import" class="w-14 h-14 bg-slate-700 text-white rounded-full shadow-lg hover:shadow-xl hover:bg-slate-800 flex items-center justify-center transition-all active:scale-95" title="Import CSV">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </button>
         <button id="btn-add" class="w-14 h-14 bg-emerald-600 text-white rounded-full shadow-lg hover:shadow-xl hover:bg-emerald-700 flex items-center justify-center transition-all active:scale-95" title="Add New Task">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
         </button>
+        <input type="file" id="csv-upload" class="hidden" accept=".csv" />
       </div>
 
       <script id="initial-data" type="application/json">${JSON.stringify(data)}</script>

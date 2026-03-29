@@ -76,6 +76,29 @@ export function addBlueprint(title, startDate, rruleString) {
   return query.run(title, startDate, rruleString, logEntry);
 }
 
+export function importBlueprints(blueprints) {
+  const timestamp = getTimestamp();
+  const insert = db.prepare(`
+    INSERT INTO blueprints (title, start_date, rrule_string, logs, is_trashed)
+    VALUES ($title, $start_date, $rrule_string, $logs, 0)
+  `);
+
+  const transaction = db.transaction((items) => {
+    for (const item of items) {
+      const logEntry = `[${timestamp}] Imported (Start: ${item.start_date}, RRule: ${item.rrule_string})\n`;
+      insert.run({
+        $title: item.title,
+        $start_date: item.start_date,
+        $rrule_string: item.rrule_string,
+        $logs: logEntry
+      });
+    }
+    return items.length;
+  });
+
+  return transaction(blueprints);
+}
+
 export function updateBlueprint(id, title, rruleString, startDate) {
   const timestamp = getTimestamp();
   const logEntry = `[${timestamp}] Edited (Title: ${title}, RRule: ${rruleString}, Start: ${startDate})\n`;
